@@ -1,7 +1,7 @@
 #[allow(warnings)]
 mod bindings;
 
-use crate::bindings::exports::component::aws_sdk_wasi_example::data_uploader::Guest;
+use bindings::exports::component::aws_sdk_wasi_example::data_uploader::Guest;
 use bindings::exports::component::aws_sdk_wasi_example::data_uploader::GuestDataUploaderClient;
 
 struct Component;
