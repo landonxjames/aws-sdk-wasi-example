@@ -1,6 +1,26 @@
 package component:aws-sdk-wasi-example;
 
-/// An example world for the component to target.
+interface data-uploader {
+    resource data-uploader-client {
+        constructor(config: client-config);
+        upload: func(input: data) -> result<confirmation, string>;
+    }
+
+    record client-config {
+        bucket-name: string,
+        table-name: string,
+    }
+
+    record data {
+        data: list<u8>,
+        metadata: list<tuple<string, string>>,
+    }
+
+    record confirmation {
+        location: string,
+    }
+}
+
 world example {
-    export hello-world: func() -> string;
+    export data-uploader;
 }

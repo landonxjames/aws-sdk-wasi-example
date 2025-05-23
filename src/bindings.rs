@@ -14,37 +14,37 @@ pub mod exports {
                 use super::super::super::super::_rt;
                 #[derive(Debug)]
                 #[repr(transparent)]
-                pub struct DataUploader {
-                    handle: _rt::Resource<DataUploader>,
+                pub struct DataUploaderClient {
+                    handle: _rt::Resource<DataUploaderClient>,
                 }
-                type _DataUploaderRep<T> = Option<T>;
-                impl DataUploader {
+                type _DataUploaderClientRep<T> = Option<T>;
+                impl DataUploaderClient {
                     /// Creates a new resource from the specified representation.
                     ///
                     /// This function will create a new resource handle by moving `val` onto
                     /// the heap and then passing that heap pointer to the component model to
-                    /// create a handle. The owned handle is then returned as `DataUploader`.
-                    pub fn new<T: GuestDataUploader>(val: T) -> Self {
+                    /// create a handle. The owned handle is then returned as `DataUploaderClient`.
+                    pub fn new<T: GuestDataUploaderClient>(val: T) -> Self {
                         Self::type_guard::<T>();
-                        let val: _DataUploaderRep<T> = Some(val);
-                        let ptr: *mut _DataUploaderRep<T> = _rt::Box::into_raw(
+                        let val: _DataUploaderClientRep<T> = Some(val);
+                        let ptr: *mut _DataUploaderClientRep<T> = _rt::Box::into_raw(
                             _rt::Box::new(val),
                         );
                         unsafe { Self::from_handle(T::_resource_new(ptr.cast())) }
                     }
                     /// Gets access to the underlying `T` which represents this resource.
-                    pub fn get<T: GuestDataUploader>(&self) -> &T {
+                    pub fn get<T: GuestDataUploaderClient>(&self) -> &T {
                         let ptr = unsafe { &*self.as_ptr::<T>() };
                         ptr.as_ref().unwrap()
                     }
                     /// Gets mutable access to the underlying `T` which represents this
                     /// resource.
-                    pub fn get_mut<T: GuestDataUploader>(&mut self) -> &mut T {
+                    pub fn get_mut<T: GuestDataUploaderClient>(&mut self) -> &mut T {
                         let ptr = unsafe { &mut *self.as_ptr::<T>() };
                         ptr.as_mut().unwrap()
                     }
                     /// Consumes this resource and returns the underlying `T`.
-                    pub fn into_inner<T: GuestDataUploader>(self) -> T {
+                    pub fn into_inner<T: GuestDataUploaderClient>(self) -> T {
                         let ptr = unsafe { &mut *self.as_ptr::<T>() };
                         ptr.take().unwrap()
                     }
@@ -83,23 +83,25 @@ pub mod exports {
                     pub unsafe fn dtor<T: 'static>(handle: *mut u8) {
                         Self::type_guard::<T>();
                         let _ = unsafe {
-                            _rt::Box::from_raw(handle as *mut _DataUploaderRep<T>)
+                            _rt::Box::from_raw(handle as *mut _DataUploaderClientRep<T>)
                         };
                     }
-                    fn as_ptr<T: GuestDataUploader>(&self) -> *mut _DataUploaderRep<T> {
-                        DataUploader::type_guard::<T>();
+                    fn as_ptr<T: GuestDataUploaderClient>(
+                        &self,
+                    ) -> *mut _DataUploaderClientRep<T> {
+                        DataUploaderClient::type_guard::<T>();
                         T::_resource_rep(self.handle()).cast()
                     }
                 }
-                /// A borrowed version of [`DataUploader`] which represents a borrowed value
+                /// A borrowed version of [`DataUploaderClient`] which represents a borrowed value
                 /// with the lifetime `'a`.
                 #[derive(Debug)]
                 #[repr(transparent)]
-                pub struct DataUploaderBorrow<'a> {
+                pub struct DataUploaderClientBorrow<'a> {
                     rep: *mut u8,
-                    _marker: core::marker::PhantomData<&'a DataUploader>,
+                    _marker: core::marker::PhantomData<&'a DataUploaderClient>,
                 }
-                impl<'a> DataUploaderBorrow<'a> {
+                impl<'a> DataUploaderClientBorrow<'a> {
                     #[doc(hidden)]
                     pub unsafe fn lift(rep: usize) -> Self {
                         Self {
@@ -108,16 +110,16 @@ pub mod exports {
                         }
                     }
                     /// Gets access to the underlying `T` in this resource.
-                    pub fn get<T: GuestDataUploader>(&self) -> &T {
+                    pub fn get<T: GuestDataUploaderClient>(&self) -> &T {
                         let ptr = unsafe { &mut *self.as_ptr::<T>() };
                         ptr.as_ref().unwrap()
                     }
-                    fn as_ptr<T: 'static>(&self) -> *mut _DataUploaderRep<T> {
-                        DataUploader::type_guard::<T>();
+                    fn as_ptr<T: 'static>(&self) -> *mut _DataUploaderClientRep<T> {
+                        DataUploaderClient::type_guard::<T>();
                         self.rep.cast()
                     }
                 }
-                unsafe impl _rt::WasmResource for DataUploader {
+                unsafe impl _rt::WasmResource for DataUploaderClient {
                     #[inline]
                     unsafe fn drop(_handle: u32) {
                         #[cfg(not(target_arch = "wasm32"))]
@@ -128,11 +130,27 @@ pub mod exports {
                                 wasm_import_module = "[export]component:aws-sdk-wasi-example/data-uploader"
                             )]
                             unsafe extern "C" {
-                                #[link_name = "[resource-drop]data-uploader"]
+                                #[link_name = "[resource-drop]data-uploader-client"]
                                 fn drop(_: u32);
                             }
                             unsafe { drop(_handle) };
                         }
+                    }
+                }
+                #[derive(Clone)]
+                pub struct ClientConfig {
+                    pub bucket_name: _rt::String,
+                    pub table_name: _rt::String,
+                }
+                impl ::core::fmt::Debug for ClientConfig {
+                    fn fmt(
+                        &self,
+                        f: &mut ::core::fmt::Formatter<'_>,
+                    ) -> ::core::fmt::Result {
+                        f.debug_struct("ClientConfig")
+                            .field("bucket-name", &self.bucket_name)
+                            .field("table-name", &self.table_name)
+                            .finish()
                     }
                 }
                 #[derive(Clone)]
@@ -151,26 +169,49 @@ pub mod exports {
                             .finish()
                     }
                 }
-                #[doc(hidden)]
-                #[allow(non_snake_case)]
-                pub unsafe fn _export_constructor_data_uploader_cabi<
-                    T: GuestDataUploader,
-                >() -> i32 {
-                    #[cfg(target_arch = "wasm32")] _rt::run_ctors_once();
-                    let result0 = DataUploader::new(T::new());
-                    (result0).take_handle() as i32
+                #[derive(Clone)]
+                pub struct Confirmation {
+                    pub location: _rt::String,
+                }
+                impl ::core::fmt::Debug for Confirmation {
+                    fn fmt(
+                        &self,
+                        f: &mut ::core::fmt::Formatter<'_>,
+                    ) -> ::core::fmt::Result {
+                        f.debug_struct("Confirmation")
+                            .field("location", &self.location)
+                            .finish()
+                    }
                 }
                 #[doc(hidden)]
                 #[allow(non_snake_case)]
-                pub unsafe fn _export_method_data_uploader_upload_cabi<
-                    T: GuestDataUploader,
+                pub unsafe fn _export_constructor_data_uploader_client_cabi<
+                    T: GuestDataUploaderClient,
+                >(arg0: *mut u8, arg1: usize, arg2: *mut u8, arg3: usize) -> i32 {
+                    #[cfg(target_arch = "wasm32")] _rt::run_ctors_once();
+                    let len0 = arg1;
+                    let bytes0 = _rt::Vec::from_raw_parts(arg0.cast(), len0, len0);
+                    let len1 = arg3;
+                    let bytes1 = _rt::Vec::from_raw_parts(arg2.cast(), len1, len1);
+                    let result2 = DataUploaderClient::new(
+                        T::new(ClientConfig {
+                            bucket_name: _rt::string_lift(bytes0),
+                            table_name: _rt::string_lift(bytes1),
+                        }),
+                    );
+                    (result2).take_handle() as i32
+                }
+                #[doc(hidden)]
+                #[allow(non_snake_case)]
+                pub unsafe fn _export_method_data_uploader_client_upload_cabi<
+                    T: GuestDataUploaderClient,
                 >(
                     arg0: *mut u8,
                     arg1: *mut u8,
                     arg2: usize,
                     arg3: *mut u8,
                     arg4: usize,
-                ) {
+                ) -> *mut u8 {
                     #[cfg(target_arch = "wasm32")] _rt::run_ctors_once();
                     let len0 = arg2;
                     let base7 = arg3;
@@ -203,18 +244,77 @@ pub mod exports {
                         len7 * (4 * ::core::mem::size_of::<*const u8>()),
                         ::core::mem::size_of::<*const u8>(),
                     );
-                    T::upload(
-                        unsafe { DataUploaderBorrow::lift(arg0 as u32 as usize) }.get(),
+                    let result8 = T::upload(
+                        unsafe { DataUploaderClientBorrow::lift(arg0 as u32 as usize) }
+                            .get(),
                         Data {
                             data: _rt::Vec::from_raw_parts(arg1.cast(), len0, len0),
                             metadata: result7,
                         },
                     );
+                    let ptr9 = (&raw mut _RET_AREA.0).cast::<u8>();
+                    match result8 {
+                        Ok(e) => {
+                            *ptr9.add(0).cast::<u8>() = (0i32) as u8;
+                            let Confirmation { location: location10 } = e;
+                            let vec11 = (location10.into_bytes()).into_boxed_slice();
+                            let ptr11 = vec11.as_ptr().cast::<u8>();
+                            let len11 = vec11.len();
+                            ::core::mem::forget(vec11);
+                            *ptr9
+                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                .cast::<usize>() = len11;
+                            *ptr9
+                                .add(::core::mem::size_of::<*const u8>())
+                                .cast::<*mut u8>() = ptr11.cast_mut();
+                        }
+                        Err(e) => {
+                            *ptr9.add(0).cast::<u8>() = (1i32) as u8;
+                            let vec12 = (e.into_bytes()).into_boxed_slice();
+                            let ptr12 = vec12.as_ptr().cast::<u8>();
+                            let len12 = vec12.len();
+                            ::core::mem::forget(vec12);
+                            *ptr9
+                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                .cast::<usize>() = len12;
+                            *ptr9
+                                .add(::core::mem::size_of::<*const u8>())
+                                .cast::<*mut u8>() = ptr12.cast_mut();
+                        }
+                    };
+                    ptr9
+                }
+                #[doc(hidden)]
+                #[allow(non_snake_case)]
+                pub unsafe fn __post_return_method_data_uploader_client_upload<
+                    T: GuestDataUploaderClient,
+                >(arg0: *mut u8) {
+                    let l0 = i32::from(*arg0.add(0).cast::<u8>());
+                    match l0 {
+                        0 => {
+                            let l1 = *arg0
+                                .add(::core::mem::size_of::<*const u8>())
+                                .cast::<*mut u8>();
+                            let l2 = *arg0
+                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                .cast::<usize>();
+                            _rt::cabi_dealloc(l1, l2, 1);
+                        }
+                        _ => {
+                            let l3 = *arg0
+                                .add(::core::mem::size_of::<*const u8>())
+                                .cast::<*mut u8>();
+                            let l4 = *arg0
+                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                .cast::<usize>();
+                            _rt::cabi_dealloc(l3, l4, 1);
+                        }
+                    }
                 }
                 pub trait Guest {
-                    type DataUploader: GuestDataUploader;
+                    type DataUploaderClient: GuestDataUploaderClient;
                 }
-                pub trait GuestDataUploader: 'static {
+                pub trait GuestDataUploaderClient: 'static {
                     #[doc(hidden)]
                     unsafe fn _resource_new(val: *mut u8) -> u32
                     where
@@ -231,7 +331,7 @@ pub mod exports {
                                 wasm_import_module = "[export]component:aws-sdk-wasi-example/data-uploader"
                             )]
                             unsafe extern "C" {
-                                #[link_name = "[resource-new]data-uploader"]
+                                #[link_name = "[resource-new]data-uploader-client"]
                                 fn new(_: *mut u8) -> u32;
                             }
                             unsafe { new(val) }
@@ -253,41 +353,61 @@ pub mod exports {
                                 wasm_import_module = "[export]component:aws-sdk-wasi-example/data-uploader"
                             )]
                             unsafe extern "C" {
-                                #[link_name = "[resource-rep]data-uploader"]
+                                #[link_name = "[resource-rep]data-uploader-client"]
                                 fn rep(_: u32) -> *mut u8;
                             }
                             unsafe { rep(handle) }
                         }
                     }
-                    fn new() -> Self;
-                    fn upload(&self, input: Data) -> ();
+                    fn new(config: ClientConfig) -> Self;
+                    fn upload(&self, input: Data) -> Result<Confirmation, _rt::String>;
                 }
                 #[doc(hidden)]
                 macro_rules! __export_component_aws_sdk_wasi_example_data_uploader_cabi {
                     ($ty:ident with_types_in $($path_to_types:tt)*) => {
                         const _ : () = { #[unsafe (export_name =
-                        "component:aws-sdk-wasi-example/data-uploader#[constructor]data-uploader")]
-                        unsafe extern "C" fn export_constructor_data_uploader() -> i32 {
-                        unsafe { $($path_to_types)*::
-                        _export_constructor_data_uploader_cabi::<<$ty as
-                        $($path_to_types)*:: Guest >::DataUploader > () } } #[unsafe
-                        (export_name =
-                        "component:aws-sdk-wasi-example/data-uploader#[method]data-uploader.upload")]
-                        unsafe extern "C" fn export_method_data_uploader_upload(arg0 : *
-                        mut u8, arg1 : * mut u8, arg2 : usize, arg3 : * mut u8, arg4 :
-                        usize,) { unsafe { $($path_to_types)*::
-                        _export_method_data_uploader_upload_cabi::<<$ty as
-                        $($path_to_types)*:: Guest >::DataUploader > (arg0, arg1, arg2,
-                        arg3, arg4) } } const _ : () = { #[doc(hidden)] #[unsafe
-                        (export_name =
-                        "component:aws-sdk-wasi-example/data-uploader#[dtor]data-uploader")]
+                        "component:aws-sdk-wasi-example/data-uploader#[constructor]data-uploader-client")]
+                        unsafe extern "C" fn export_constructor_data_uploader_client(arg0
+                        : * mut u8, arg1 : usize, arg2 : * mut u8, arg3 : usize,) -> i32
+                        { unsafe { $($path_to_types)*::
+                        _export_constructor_data_uploader_client_cabi::<<$ty as
+                        $($path_to_types)*:: Guest >::DataUploaderClient > (arg0, arg1,
+                        arg2, arg3) } } #[unsafe (export_name =
+                        "component:aws-sdk-wasi-example/data-uploader#[method]data-uploader-client.upload")]
+                        unsafe extern "C" fn
+                        export_method_data_uploader_client_upload(arg0 : * mut u8, arg1 :
+                        * mut u8, arg2 : usize, arg3 : * mut u8, arg4 : usize,) -> * mut
+                        u8 { unsafe { $($path_to_types)*::
+                        _export_method_data_uploader_client_upload_cabi::<<$ty as
+                        $($path_to_types)*:: Guest >::DataUploaderClient > (arg0, arg1,
+                        arg2, arg3, arg4) } } #[unsafe (export_name =
+                        "cabi_post_component:aws-sdk-wasi-example/data-uploader#[method]data-uploader-client.upload")]
+                        unsafe extern "C" fn
+                        _post_return_method_data_uploader_client_upload(arg0 : * mut u8,)
+                        { unsafe { $($path_to_types)*::
+                        __post_return_method_data_uploader_client_upload::<<$ty as
+                        $($path_to_types)*:: Guest >::DataUploaderClient > (arg0) } }
+                        const _ : () = { #[doc(hidden)] #[unsafe (export_name =
+                        "component:aws-sdk-wasi-example/data-uploader#[dtor]data-uploader-client")]
                         #[allow(non_snake_case)] unsafe extern "C" fn dtor(rep : * mut
-                        u8) { unsafe { $($path_to_types)*:: DataUploader::dtor::< <$ty as
-                        $($path_to_types)*:: Guest >::DataUploader > (rep) } } }; };
+                        u8) { unsafe { $($path_to_types)*:: DataUploaderClient::dtor::<
+                        <$ty as $($path_to_types)*:: Guest >::DataUploaderClient > (rep)
+                        } } }; };
                     };
                 }
                 #[doc(hidden)]
                 pub(crate) use __export_component_aws_sdk_wasi_example_data_uploader_cabi;
+                #[cfg_attr(target_pointer_width = "64", repr(align(8)))]
+                #[cfg_attr(target_pointer_width = "32", repr(align(4)))]
+                struct _RetArea(
+                    [::core::mem::MaybeUninit<
+                        u8,
+                    >; 3 * ::core::mem::size_of::<*const u8>()],
+                );
+                static mut _RET_AREA: _RetArea = _RetArea(
+                    [::core::mem::MaybeUninit::uninit(); 3
+                        * ::core::mem::size_of::<*const u8>()],
+                );
             }
         }
     }
@@ -370,8 +490,8 @@ mod _rt {
         }
     }
     pub use alloc_crate::boxed::Box;
-    pub use alloc_crate::vec::Vec;
     pub use alloc_crate::string::String;
+    pub use alloc_crate::vec::Vec;
     #[cfg(target_arch = "wasm32")]
     pub fn run_ctors_once() {
         wit_bindgen_rt::run_ctors_once();
@@ -430,15 +550,17 @@ pub(crate) use __export_example_impl as export;
 )]
 #[doc(hidden)]
 #[allow(clippy::octal_escapes)]
-pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 378] = *b"\
-\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\xfc\x01\x01A\x02\x01\
-A\x02\x01B\x0c\x04\0\x0ddata-uploader\x03\x01\x01p}\x01o\x02ss\x01p\x02\x01r\x02\
-\x04data\x01\x08metadata\x03\x04\0\x04data\x03\0\x04\x01i\0\x01@\0\0\x06\x04\0\x1a\
-[constructor]data-uploader\x01\x07\x01h\0\x01@\x02\x04self\x08\x05input\x05\x01\0\
-\x04\0\x1c[method]data-uploader.upload\x01\x09\x04\0,component:aws-sdk-wasi-exam\
-ple/data-uploader\x05\0\x04\0&component:aws-sdk-wasi-example/example\x04\0\x0b\x0d\
-\x01\0\x07example\x03\0\0\0G\x09producers\x01\x0cprocessed-by\x02\x0dwit-compone\
-nt\x070.227.1\x10wit-bindgen-rust\x060.41.0";
+pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 491] = *b"\
+\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\xed\x02\x01A\x02\x01\
+A\x02\x01B\x11\x04\0\x14data-uploader-client\x03\x01\x01r\x02\x0bbucket-names\x0a\
+table-names\x04\0\x0dclient-config\x03\0\x01\x01p}\x01o\x02ss\x01p\x04\x01r\x02\x04\
+data\x03\x08metadata\x05\x04\0\x04data\x03\0\x06\x01r\x01\x08locations\x04\0\x0c\
+confirmation\x03\0\x08\x01i\0\x01@\x01\x06config\x02\0\x0a\x04\0![constructor]da\
+ta-uploader-client\x01\x0b\x01h\0\x01j\x01\x09\x01s\x01@\x02\x04self\x0c\x05inpu\
+t\x07\0\x0d\x04\0#[method]data-uploader-client.upload\x01\x0e\x04\0,component:aw\
+s-sdk-wasi-example/data-uploader\x05\0\x04\0&component:aws-sdk-wasi-example/exam\
+ple\x04\0\x0b\x0d\x01\0\x07example\x03\0\0\0G\x09producers\x01\x0cprocessed-by\x02\
+\x0dwit-component\x070.227.1\x10wit-bindgen-rust\x060.41.0";
 #[inline(never)]
 #[doc(hidden)]
 pub fn __link_custom_section_describing_imports() {
