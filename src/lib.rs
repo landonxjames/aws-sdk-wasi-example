@@ -1,14 +1,32 @@
 #[allow(warnings)]
 mod bindings;
 
-use bindings::Guest;
+use crate::bindings::exports::component::aws_sdk_wasi_example::data_uploader::Guest;
+use bindings::exports::component::aws_sdk_wasi_example::data_uploader::GuestDataUploaderClient;
 
 struct Component;
 
 impl Guest for Component {
-    /// Say hello!
-    fn hello_world() -> String {
-        "Hello, World!".to_string()
+    type DataUploaderClient = DataUploaderClient;
+}
+
+struct DataUploaderClient;
+
+impl GuestDataUploaderClient for DataUploaderClient {
+    fn new(
+        config: bindings::exports::component::aws_sdk_wasi_example::data_uploader::ClientConfig,
+    ) -> Self {
+        todo!()
+    }
+
+    fn upload(
+        &self,
+        input: bindings::exports::component::aws_sdk_wasi_example::data_uploader::Data,
+    ) -> Result<
+        bindings::exports::component::aws_sdk_wasi_example::data_uploader::Confirmation,
+        String,
+    > {
+        todo!()
     }
 }
 
