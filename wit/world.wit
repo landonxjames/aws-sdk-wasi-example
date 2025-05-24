@@ -7,11 +7,13 @@ interface data-uploader {
     }
 
     record client-config {
+        region: string,
         bucket-name: string,
         table-name: string,
     }
 
     record data {
+        file-name: string,
         data: list<u8>,
         metadata: list<tuple<string, string>>,
     }

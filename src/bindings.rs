@@ -139,6 +139,7 @@ pub mod exports {
                 }
                 #[derive(Clone)]
                 pub struct ClientConfig {
+                    pub region: _rt::String,
                     pub bucket_name: _rt::String,
                     pub table_name: _rt::String,
                 }
@@ -148,6 +149,7 @@ pub mod exports {
                         f: &mut ::core::fmt::Formatter<'_>,
                     ) -> ::core::fmt::Result {
                         f.debug_struct("ClientConfig")
+                            .field("region", &self.region)
                             .field("bucket-name", &self.bucket_name)
                             .field("table-name", &self.table_name)
                             .finish()
@@ -155,6 +157,7 @@ pub mod exports {
                 }
                 #[derive(Clone)]
                 pub struct Data {
+                    pub file_name: _rt::String,
                     pub data: _rt::Vec<u8>,
                     pub metadata: _rt::Vec<(_rt::String, _rt::String)>,
                 }
@@ -164,6 +167,7 @@ pub mod exports {
                         f: &mut ::core::fmt::Formatter<'_>,
                     ) -> ::core::fmt::Result {
                         f.debug_struct("Data")
+                            .field("file-name", &self.file_name)
                             .field("data", &self.data)
                             .field("metadata", &self.metadata)
                             .finish()
@@ -187,19 +191,29 @@ pub mod exports {
                 #[allow(non_snake_case)]
                 pub unsafe fn _export_constructor_data_uploader_client_cabi<
                     T: GuestDataUploaderClient,
-                >(arg0: *mut u8, arg1: usize, arg2: *mut u8, arg3: usize) -> i32 {
+                >(
+                    arg0: *mut u8,
+                    arg1: usize,
+                    arg2: *mut u8,
+                    arg3: usize,
+                    arg4: *mut u8,
+                    arg5: usize,
+                ) -> i32 {
                     #[cfg(target_arch = "wasm32")] _rt::run_ctors_once();
                     let len0 = arg1;
                     let bytes0 = _rt::Vec::from_raw_parts(arg0.cast(), len0, len0);
                     let len1 = arg3;
                     let bytes1 = _rt::Vec::from_raw_parts(arg2.cast(), len1, len1);
-                    let result2 = DataUploaderClient::new(
+                    let len2 = arg5;
+                    let bytes2 = _rt::Vec::from_raw_parts(arg4.cast(), len2, len2);
+                    let result3 = DataUploaderClient::new(
                         T::new(ClientConfig {
-                            bucket_name: _rt::string_lift(bytes0),
-                            table_name: _rt::string_lift(bytes1),
+                            region: _rt::string_lift(bytes0),
+                            bucket_name: _rt::string_lift(bytes1),
+                            table_name: _rt::string_lift(bytes2),
                         }),
                     );
-                    (result2).take_handle() as i32
+                    (result3).take_handle() as i32
                 }
                 #[doc(hidden)]
                 #[allow(non_snake_case)]
@@ -211,78 +225,83 @@ pub mod exports {
                     arg2: usize,
                     arg3: *mut u8,
                     arg4: usize,
+                    arg5: *mut u8,
+                    arg6: usize,
                 ) -> *mut u8 {
                     #[cfg(target_arch = "wasm32")] _rt::run_ctors_once();
                     let len0 = arg2;
-                    let base7 = arg3;
-                    let len7 = arg4;
-                    let mut result7 = _rt::Vec::with_capacity(len7);
-                    for i in 0..len7 {
-                        let base = base7
+                    let bytes0 = _rt::Vec::from_raw_parts(arg1.cast(), len0, len0);
+                    let len1 = arg4;
+                    let base8 = arg5;
+                    let len8 = arg6;
+                    let mut result8 = _rt::Vec::with_capacity(len8);
+                    for i in 0..len8 {
+                        let base = base8
                             .add(i * (4 * ::core::mem::size_of::<*const u8>()));
-                        let e7 = {
-                            let l1 = *base.add(0).cast::<*mut u8>();
-                            let l2 = *base
+                        let e8 = {
+                            let l2 = *base.add(0).cast::<*mut u8>();
+                            let l3 = *base
                                 .add(::core::mem::size_of::<*const u8>())
                                 .cast::<usize>();
-                            let len3 = l2;
-                            let bytes3 = _rt::Vec::from_raw_parts(l1.cast(), len3, len3);
-                            let l4 = *base
+                            let len4 = l3;
+                            let bytes4 = _rt::Vec::from_raw_parts(l2.cast(), len4, len4);
+                            let l5 = *base
                                 .add(2 * ::core::mem::size_of::<*const u8>())
                                 .cast::<*mut u8>();
-                            let l5 = *base
+                            let l6 = *base
                                 .add(3 * ::core::mem::size_of::<*const u8>())
                                 .cast::<usize>();
-                            let len6 = l5;
-                            let bytes6 = _rt::Vec::from_raw_parts(l4.cast(), len6, len6);
-                            (_rt::string_lift(bytes3), _rt::string_lift(bytes6))
+                            let len7 = l6;
+                            let bytes7 = _rt::Vec::from_raw_parts(l5.cast(), len7, len7);
+                            (_rt::string_lift(bytes4), _rt::string_lift(bytes7))
                         };
-                        result7.push(e7);
+                        result8.push(e8);
                     }
                     _rt::cabi_dealloc(
-                        base7,
-                        len7 * (4 * ::core::mem::size_of::<*const u8>()),
+                        base8,
+                        len8 * (4 * ::core::mem::size_of::<*const u8>()),
                         ::core::mem::size_of::<*const u8>(),
                     );
-                    let result8 = T::upload(
+                    let result9 = T::upload(
                         unsafe { DataUploaderClientBorrow::lift(arg0 as u32 as usize) }
                             .get(),
                         Data {
-                            data: _rt::Vec::from_raw_parts(arg1.cast(), len0, len0),
-                            metadata: result7,
+                            file_name: _rt::string_lift(bytes0),
+                            data: _rt::Vec::from_raw_parts(arg3.cast(), len1, len1),
+                            metadata: result8,
                         },
                     );
-                    let ptr9 = (&raw mut _RET_AREA.0).cast::<u8>();
-                    match result8 {
+                    let ptr10 = (&raw mut _RET_AREA.0).cast::<u8>();
+                    match result9 {
                         Ok(e) => {
-                            *ptr9.add(0).cast::<u8>() = (0i32) as u8;
-                            let Confirmation { location: location10 } = e;
-                            let vec11 = (location10.into_bytes()).into_boxed_slice();
-                            let ptr11 = vec11.as_ptr().cast::<u8>();
-                            let len11 = vec11.len();
-                            ::core::mem::forget(vec11);
-                            *ptr9
-                                .add(2 * ::core::mem::size_of::<*const u8>())
-                                .cast::<usize>() = len11;
-                            *ptr9
-                                .add(::core::mem::size_of::<*const u8>())
-                                .cast::<*mut u8>() = ptr11.cast_mut();
-                        }
-                        Err(e) => {
-                            *ptr9.add(0).cast::<u8>() = (1i32) as u8;
-                            let vec12 = (e.into_bytes()).into_boxed_slice();
+                            *ptr10.add(0).cast::<u8>() = (0i32) as u8;
+                            let Confirmation { location: location11 } = e;
+                            let vec12 = (location11.into_bytes()).into_boxed_slice();
                             let ptr12 = vec12.as_ptr().cast::<u8>();
                             let len12 = vec12.len();
                             ::core::mem::forget(vec12);
-                            *ptr9
+                            *ptr10
                                 .add(2 * ::core::mem::size_of::<*const u8>())
                                 .cast::<usize>() = len12;
-                            *ptr9
+                            *ptr10
                                 .add(::core::mem::size_of::<*const u8>())
                                 .cast::<*mut u8>() = ptr12.cast_mut();
                         }
+                        Err(e) => {
+                            *ptr10.add(0).cast::<u8>() = (1i32) as u8;
+                            let vec13 = (e.into_bytes()).into_boxed_slice();
+                            let ptr13 = vec13.as_ptr().cast::<u8>();
+                            let len13 = vec13.len();
+                            ::core::mem::forget(vec13);
+                            *ptr10
+                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                .cast::<usize>() = len13;
+                            *ptr10
+                                .add(::core::mem::size_of::<*const u8>())
+                                .cast::<*mut u8>() = ptr13.cast_mut();
+                        }
                     };
-                    ptr9
+                    ptr10
                 }
                 #[doc(hidden)]
                 #[allow(non_snake_case)]
@@ -368,19 +387,20 @@ pub mod exports {
                         const _ : () = { #[unsafe (export_name =
                         "component:aws-sdk-wasi-example/data-uploader#[constructor]data-uploader-client")]
                         unsafe extern "C" fn export_constructor_data_uploader_client(arg0
-                        : * mut u8, arg1 : usize, arg2 : * mut u8, arg3 : usize,) -> i32
-                        { unsafe { $($path_to_types)*::
+                        : * mut u8, arg1 : usize, arg2 : * mut u8, arg3 : usize, arg4 : *
+                        mut u8, arg5 : usize,) -> i32 { unsafe { $($path_to_types)*::
                         _export_constructor_data_uploader_client_cabi::<<$ty as
                         $($path_to_types)*:: Guest >::DataUploaderClient > (arg0, arg1,
-                        arg2, arg3) } } #[unsafe (export_name =
+                        arg2, arg3, arg4, arg5) } } #[unsafe (export_name =
                         "component:aws-sdk-wasi-example/data-uploader#[method]data-uploader-client.upload")]
                         unsafe extern "C" fn
                         export_method_data_uploader_client_upload(arg0 : * mut u8, arg1 :
-                        * mut u8, arg2 : usize, arg3 : * mut u8, arg4 : usize,) -> * mut
-                        u8 { unsafe { $($path_to_types)*::
+                        * mut u8, arg2 : usize, arg3 : * mut u8, arg4 : usize, arg5 : *
+                        mut u8, arg6 : usize,) -> * mut u8 { unsafe {
+                        $($path_to_types)*::
                         _export_method_data_uploader_client_upload_cabi::<<$ty as
                         $($path_to_types)*:: Guest >::DataUploaderClient > (arg0, arg1,
-                        arg2, arg3, arg4) } } #[unsafe (export_name =
+                        arg2, arg3, arg4, arg5, arg6) } } #[unsafe (export_name =
                         "cabi_post_component:aws-sdk-wasi-example/data-uploader#[method]data-uploader-client.upload")]
                         unsafe extern "C" fn
                         _post_return_method_data_uploader_client_upload(arg0 : * mut u8,)
@@ -550,17 +570,18 @@ pub(crate) use __export_example_impl as export;
 )]
 #[doc(hidden)]
 #[allow(clippy::octal_escapes)]
-pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 491] = *b"\
-\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\xed\x02\x01A\x02\x01\
-A\x02\x01B\x11\x04\0\x14data-uploader-client\x03\x01\x01r\x02\x0bbucket-names\x0a\
-table-names\x04\0\x0dclient-config\x03\0\x01\x01p}\x01o\x02ss\x01p\x04\x01r\x02\x04\
-data\x03\x08metadata\x05\x04\0\x04data\x03\0\x06\x01r\x01\x08locations\x04\0\x0c\
-confirmation\x03\0\x08\x01i\0\x01@\x01\x06config\x02\0\x0a\x04\0![constructor]da\
-ta-uploader-client\x01\x0b\x01h\0\x01j\x01\x09\x01s\x01@\x02\x04self\x0c\x05inpu\
-t\x07\0\x0d\x04\0#[method]data-uploader-client.upload\x01\x0e\x04\0,component:aw\
-s-sdk-wasi-example/data-uploader\x05\0\x04\0&component:aws-sdk-wasi-example/exam\
-ple\x04\0\x0b\x0d\x01\0\x07example\x03\0\0\0G\x09producers\x01\x0cprocessed-by\x02\
-\x0dwit-component\x070.227.1\x10wit-bindgen-rust\x060.41.0";
+pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 510] = *b"\
+\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\x80\x03\x01A\x02\x01\
+A\x02\x01B\x11\x04\0\x14data-uploader-client\x03\x01\x01r\x03\x06regions\x0bbuck\
+et-names\x0atable-names\x04\0\x0dclient-config\x03\0\x01\x01p}\x01o\x02ss\x01p\x04\
+\x01r\x03\x09file-names\x04data\x03\x08metadata\x05\x04\0\x04data\x03\0\x06\x01r\
+\x01\x08locations\x04\0\x0cconfirmation\x03\0\x08\x01i\0\x01@\x01\x06config\x02\0\
+\x0a\x04\0![constructor]data-uploader-client\x01\x0b\x01h\0\x01j\x01\x09\x01s\x01\
+@\x02\x04self\x0c\x05input\x07\0\x0d\x04\0#[method]data-uploader-client.upload\x01\
+\x0e\x04\0,component:aws-sdk-wasi-example/data-uploader\x05\0\x04\0&component:aw\
+s-sdk-wasi-example/example\x04\0\x0b\x0d\x01\0\x07example\x03\0\0\0G\x09producer\
+s\x01\x0cprocessed-by\x02\x0dwit-component\x070.227.1\x10wit-bindgen-rust\x060.4\
+1.0";
 #[inline(never)]
 #[doc(hidden)]
 pub fn __link_custom_section_describing_imports() {
