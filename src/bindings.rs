@@ -187,6 +187,35 @@ pub mod exports {
                             .finish()
                     }
                 }
+                #[derive(Clone)]
+                pub enum Error {
+                    S3Error(_rt::String),
+                    DdbError(_rt::String),
+                }
+                impl ::core::fmt::Debug for Error {
+                    fn fmt(
+                        &self,
+                        f: &mut ::core::fmt::Formatter<'_>,
+                    ) -> ::core::fmt::Result {
+                        match self {
+                            Error::S3Error(e) => {
+                                f.debug_tuple("Error::S3Error").field(e).finish()
+                            }
+                            Error::DdbError(e) => {
+                                f.debug_tuple("Error::DdbError").field(e).finish()
+                            }
+                        }
+                    }
+                }
+                impl ::core::fmt::Display for Error {
+                    fn fmt(
+                        &self,
+                        f: &mut ::core::fmt::Formatter<'_>,
+                    ) -> ::core::fmt::Result {
+                        write!(f, "{:?}", self)
+                    }
+                }
+                impl std::error::Error for Error {}
                 #[doc(hidden)]
                 #[allow(non_snake_case)]
                 pub unsafe fn _export_constructor_data_uploader_client_cabi<
@@ -289,16 +318,38 @@ pub mod exports {
                         }
                         Err(e) => {
                             *ptr10.add(0).cast::<u8>() = (1i32) as u8;
-                            let vec13 = (e.into_bytes()).into_boxed_slice();
-                            let ptr13 = vec13.as_ptr().cast::<u8>();
-                            let len13 = vec13.len();
-                            ::core::mem::forget(vec13);
-                            *ptr10
-                                .add(2 * ::core::mem::size_of::<*const u8>())
-                                .cast::<usize>() = len13;
-                            *ptr10
-                                .add(::core::mem::size_of::<*const u8>())
-                                .cast::<*mut u8>() = ptr13.cast_mut();
+                            match e {
+                                Error::S3Error(e) => {
+                                    *ptr10
+                                        .add(::core::mem::size_of::<*const u8>())
+                                        .cast::<u8>() = (0i32) as u8;
+                                    let vec13 = (e.into_bytes()).into_boxed_slice();
+                                    let ptr13 = vec13.as_ptr().cast::<u8>();
+                                    let len13 = vec13.len();
+                                    ::core::mem::forget(vec13);
+                                    *ptr10
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>() = len13;
+                                    *ptr10
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>() = ptr13.cast_mut();
+                                }
+                                Error::DdbError(e) => {
+                                    *ptr10
+                                        .add(::core::mem::size_of::<*const u8>())
+                                        .cast::<u8>() = (1i32) as u8;
+                                    let vec14 = (e.into_bytes()).into_boxed_slice();
+                                    let ptr14 = vec14.as_ptr().cast::<u8>();
+                                    let len14 = vec14.len();
+                                    ::core::mem::forget(vec14);
+                                    *ptr10
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>() = len14;
+                                    *ptr10
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>() = ptr14.cast_mut();
+                                }
+                            }
                         }
                     };
                     ptr10
@@ -320,13 +371,29 @@ pub mod exports {
                             _rt::cabi_dealloc(l1, l2, 1);
                         }
                         _ => {
-                            let l3 = *arg0
-                                .add(::core::mem::size_of::<*const u8>())
-                                .cast::<*mut u8>();
-                            let l4 = *arg0
-                                .add(2 * ::core::mem::size_of::<*const u8>())
-                                .cast::<usize>();
-                            _rt::cabi_dealloc(l3, l4, 1);
+                            let l3 = i32::from(
+                                *arg0.add(::core::mem::size_of::<*const u8>()).cast::<u8>(),
+                            );
+                            match l3 {
+                                0 => {
+                                    let l4 = *arg0
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>();
+                                    let l5 = *arg0
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>();
+                                    _rt::cabi_dealloc(l4, l5, 1);
+                                }
+                                _ => {
+                                    let l6 = *arg0
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>();
+                                    let l7 = *arg0
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>();
+                                    _rt::cabi_dealloc(l6, l7, 1);
+                                }
+                            }
                         }
                     }
                 }
@@ -379,7 +446,7 @@ pub mod exports {
                         }
                     }
                     fn new(config: ClientConfig) -> Self;
-                    fn upload(&self, input: Data) -> Result<Confirmation, _rt::String>;
+                    fn upload(&self, input: Data) -> Result<Confirmation, Error>;
                 }
                 #[doc(hidden)]
                 macro_rules! __export_component_aws_sdk_wasi_example_data_uploader_cabi {
@@ -422,10 +489,10 @@ pub mod exports {
                 struct _RetArea(
                     [::core::mem::MaybeUninit<
                         u8,
-                    >; 3 * ::core::mem::size_of::<*const u8>()],
+                    >; 4 * ::core::mem::size_of::<*const u8>()],
                 );
                 static mut _RET_AREA: _RetArea = _RetArea(
-                    [::core::mem::MaybeUninit::uninit(); 3
+                    [::core::mem::MaybeUninit::uninit(); 4
                         * ::core::mem::size_of::<*const u8>()],
                 );
             }
@@ -570,18 +637,18 @@ pub(crate) use __export_example_impl as export;
 )]
 #[doc(hidden)]
 #[allow(clippy::octal_escapes)]
-pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 510] = *b"\
-\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\x80\x03\x01A\x02\x01\
-A\x02\x01B\x11\x04\0\x14data-uploader-client\x03\x01\x01r\x03\x06regions\x0bbuck\
+pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 549] = *b"\
+\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\xa7\x03\x01A\x02\x01\
+A\x02\x01B\x13\x04\0\x14data-uploader-client\x03\x01\x01r\x03\x06regions\x0bbuck\
 et-names\x0atable-names\x04\0\x0dclient-config\x03\0\x01\x01p}\x01o\x02ss\x01p\x04\
 \x01r\x03\x09file-names\x04data\x03\x08metadata\x05\x04\0\x04data\x03\0\x06\x01r\
-\x01\x08locations\x04\0\x0cconfirmation\x03\0\x08\x01i\0\x01@\x01\x06config\x02\0\
-\x0a\x04\0![constructor]data-uploader-client\x01\x0b\x01h\0\x01j\x01\x09\x01s\x01\
-@\x02\x04self\x0c\x05input\x07\0\x0d\x04\0#[method]data-uploader-client.upload\x01\
-\x0e\x04\0,component:aws-sdk-wasi-example/data-uploader\x05\0\x04\0&component:aw\
-s-sdk-wasi-example/example\x04\0\x0b\x0d\x01\0\x07example\x03\0\0\0G\x09producer\
-s\x01\x0cprocessed-by\x02\x0dwit-component\x070.227.1\x10wit-bindgen-rust\x060.4\
-1.0";
+\x01\x08locations\x04\0\x0cconfirmation\x03\0\x08\x01q\x02\x08s3-error\x01s\0\x09\
+ddb-error\x01s\0\x04\0\x05error\x03\0\x0a\x01i\0\x01@\x01\x06config\x02\0\x0c\x04\
+\0![constructor]data-uploader-client\x01\x0d\x01h\0\x01j\x01\x09\x01\x0b\x01@\x02\
+\x04self\x0e\x05input\x07\0\x0f\x04\0#[method]data-uploader-client.upload\x01\x10\
+\x04\0,component:aws-sdk-wasi-example/data-uploader\x05\0\x04\0&component:aws-sd\
+k-wasi-example/example\x04\0\x0b\x0d\x01\0\x07example\x03\0\0\0G\x09producers\x01\
+\x0cprocessed-by\x02\x0dwit-component\x070.227.1\x10wit-bindgen-rust\x060.41.0";
 #[inline(never)]
 #[doc(hidden)]
 pub fn __link_custom_section_describing_imports() {

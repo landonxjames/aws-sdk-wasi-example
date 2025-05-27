@@ -3,7 +3,7 @@ package component:aws-sdk-wasi-example;
 interface data-uploader {
     resource data-uploader-client {
         constructor(config: client-config);
-        upload: func(input: data) -> result<confirmation, string>;
+        upload: func(input: data) -> result<confirmation, error>;
     }
 
     record client-config {
@@ -20,6 +20,11 @@ interface data-uploader {
 
     record confirmation {
         location: string,
+    }
+
+    variant error {
+        s3-error(string),
+        ddb-error(string),
     }
 }
 
