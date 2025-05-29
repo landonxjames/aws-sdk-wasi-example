@@ -30,7 +30,7 @@ cargo component new --lib aws-sdk-wasi-example
 
 This creates a new directory structured like this:
 
-```
+```sh
 .
 ├── Cargo.toml
 ├── src
@@ -49,7 +49,7 @@ Lets take a quick look at what each of these files does before we move on:
 
 We will first start by updating our WIT definition to model the component we want:
 
-```
+```wit
 package component:aws-sdk-wasi-example;
 
 interface data-uploader {
@@ -107,7 +107,7 @@ Several of these WIT concepts are new, so we will review them here, but if you w
 
 Now that we’ve updated our WIT definition we will need to update our `lib.rs` to implement it. With the `todo!()` macro filling in any business logic our basic implementation looks like this:
 
-```
+```rust
 #[allow(warnings)]
 mod bindings;
 
@@ -149,7 +149,7 @@ You can see that we are importing two traits from the WIT generated `bindings` m
 
 Now that we have seen the basic outline of our module we can begin filling in the business logic in the methods of the `GuestDataUploaderClient` trait. To do this we need to add some new dependencies for the Rust SDK crates. Add the following to the `[dependencies]` section of your `Cargo.toml`:
 
-```
+```toml
 [dependencies]
 wit-bindgen-rt = { version = "0.42.1", features = ["bitflags"] }
 aws-sdk-s3 = {version = "1", default-features = false}
@@ -164,7 +164,7 @@ Notice that we have set `default-features = false` for most of the `aws-*` crate
 
 With these dependencies added we will now implement the `new` method for our `GuestDataUploaderClient` trait.
 
-```
+```rust
 struct DataUploaderClient {
     s3_client: aws_sdk_s3::Client,
     ddb_client: aws_sdk_dynamodb::Client,
@@ -210,7 +210,7 @@ There are several things created in this function, all of which are stored in th
 
 With our `data-uploader-client` created we can now implement its `upload` and `list` functions.
 
-```
+```rust
     fn upload(
         &self,
         input: data_uploader::Data,
@@ -328,7 +328,7 @@ Both of these functions make use of the SDK clients we created in the `new()` me
 
 If we now run `cargo component build --release` we will see our WASM component in our workspace at `target/wasm32-wasip1/release/aws_sdk_wasi_example.wasm`. Note that this file is about 6MB. We typically want to get our WASM binaries as small as possible to improve distribution and compile times. We can improve the size of our artifact by adding a few setting in our Cargo.toml file:
 
-```
+```toml
 [profile.release]
 codegen-units = 1
 opt-level = "s"
@@ -347,7 +347,7 @@ With all of our business logic completed we can now create bindings to our WASM 
 
 To create Javascript bindings to our WASM module we will use [jco](https://www.npmjs.com/package/@bytecodealliance/jco), a tool that generates bindings and inserts Javascript implementations of the WASI interfaces since most JS runtimes do not currently provide a WASI runtime environment. At the root of your project create a new file called `package.json` and copy the following into it:
 
-```
+```json
 {
   "name": "aws-sdk-wasi-example",
   "version": "0.1.0",
@@ -367,40 +367,40 @@ To create Javascript bindings to our WASM module we will use [jco](https://www.n
 
 Then run `npm install && npm run build`. This will create a new folder in your project called `js-bindings` containing the javascript bindings to the WASM component and typescript types describing the interfaces. You can see that the types generated for our `data-uploader` interface in `js-bindings/interfaces/component-aws-sdk-wasi-example-data-uploader.d.ts` closely mirror what we described in the WIT file.
 
-```
+```ts
 export interface ClientConfig {
-  region: string,
-  bucketName: string,
-  tableName: string,
+  region: string;
+  bucketName: string;
+  tableName: string;
 }
 export interface Data {
-  fileName: string,
-  data: Uint8Array,
-  metadata: Array<[string, string]>,
+  fileName: string;
+  data: Uint8Array;
+  metadata: Array<[string, string]>;
 }
 export interface Confirmation {
-  s3Uri: string,
+  s3Uri: string;
 }
 export interface FileMetadata {
-  s3Uri: string,
-  metadata: Array<[string, string]>,
+  s3Uri: string;
+  metadata: Array<[string, string]>;
 }
 export type Error = ErrorS3Error | ErrorDdbError | ErrorInputError;
 export interface ErrorS3Error {
-  tag: 's3-error',
-  val: string,
+  tag: "s3-error";
+  val: string;
 }
 export interface ErrorDdbError {
-  tag: 'ddb-error',
-  val: string,
+  tag: "ddb-error";
+  val: string;
 }
 export interface ErrorInputError {
-  tag: 'input-error',
-  val: string,
+  tag: "input-error";
+  val: string;
 }
 
 export class DataUploaderClient {
-  constructor(config: ClientConfig)
+  constructor(config: ClientConfig);
   upload(input: Data): Confirmation;
   list(): Array<FileMetadata>;
 }
@@ -408,7 +408,7 @@ export class DataUploaderClient {
 
 Now to use these generated bindings create another file at the root of your project called `main.ts` and add the following content to it:
 
-```
+```ts
 import * as component from "./js-bindings/aws_sdk_wasi_example.js";
 import {
   ClientConfig,
@@ -441,7 +441,7 @@ console.log("uploadedFiles:", JSON.stringify(uploadedFiles));
 
 Before running this code we need to make sure that we have appropriate credentials available in our environment that have permissions to write to S3 and DDB. To easily achieve this we will export our credentials as environment variables using the following command:
 
-```
+```sh
 export AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY_ID_HERE>
 export AWS_SECRET_ACCESS_KEY=<YOUR_SECRET_ACCESS_KEY_HERE>
 export AWS_SESSION_TOKEN=<YOUR_SESSION_TOKEN_HERE>
