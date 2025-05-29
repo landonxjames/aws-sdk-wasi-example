@@ -1,0 +1,15 @@
+{
+  "name": "aws-sdk-wasi-example",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build-js-bindings": "cargo component build --release && npx jco transpile ./target/wasm32-wasip1/release/aws_sdk_wasi_example.wasm -o ./js-bindings/ --no-namespaced-exports",
+    "build": "npm run build-js-bindings"
+  },
+  "devDependencies": {
+    "@bytecodealliance/jco": "^1.11.2"
+  },
+  "dependencies": {
+    "@bytecodealliance/preview2-shim": "^0.17.2"
+  }
+}

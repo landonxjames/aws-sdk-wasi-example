@@ -1,15 +1,20 @@
 {
-    "rust-analyzer.check.overrideCommand": [
-        "cargo",
-        "component",
-        "check",
-        "--workspace",
-        "--all-targets",
-        "--message-format=json"
-    ],
-    "workbench.colorCustomizations": {
-        "activityBar.background": "#41280F",
-        "titleBar.activeBackground": "#5B3815",
-        "titleBar.activeForeground": "#FDFAF6"
-    },
+  // Temporarily disabled because it randomly started breaking rust-analyzer
+  //   "rust-analyzer.check.overrideCommand": [
+  //     "cargo",
+  //     "component",
+  //     "check",
+  //     "--workspace",
+  //     "--all-targets",
+  //     "--message-format=json"
+  //   ],
+  //   "rust-analyzer.trace.extension": true,
+  //   "rust-analyzer.linkedProjects": [
+  //     "/Volumes/workplace/aws-sdk-wasi-example/Cargo.toml"
+  //   ],
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#41280F",
+    "titleBar.activeBackground": "#5B3815",
+    "titleBar.activeForeground": "#FDFAF6"
+  }
 }

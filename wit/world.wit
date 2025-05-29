@@ -4,6 +4,7 @@ interface data-uploader {
     resource data-uploader-client {
         constructor(config: client-config);
         upload: func(input: data) -> result<confirmation, error>;
+        %list: func() -> result<list<file-metadata>, error>;
     }
 
     record client-config {
@@ -19,13 +20,20 @@ interface data-uploader {
     }
 
     record confirmation {
-        location: string,
+        s3-uri: string,
+    }
+
+    record file-metadata {
+        s3-uri: string,
+        metadata: list<tuple<string, string>>,
     }
 
     variant error {
         s3-error(string),
         ddb-error(string),
+        input-error(string),
     }
+
 }
 
 world example {

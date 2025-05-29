@@ -5,10 +5,12 @@ use std::collections::HashMap;
 
 use aws_config::BehaviorVersion;
 use aws_config::Region;
+use aws_sdk_dynamodb::error::DisplayErrorContext as DisplayErrorContextDdb;
+use aws_sdk_dynamodb::types::AttributeValue;
+use aws_sdk_s3::error::DisplayErrorContext as DisplayErrorContextS3;
 use bindings::exports::component::aws_sdk_wasi_example::data_uploader;
 use bindings::exports::component::aws_sdk_wasi_example::data_uploader::Guest;
 use bindings::exports::component::aws_sdk_wasi_example::data_uploader::GuestDataUploaderClient;
-
 struct Component;
 
 impl Guest for Component {
@@ -65,7 +67,7 @@ impl GuestDataUploaderClient for DataUploaderClient {
                 .body(input.data.into())
                 .send()
                 .await
-                .map_err(|e| data_uploader::Error::S3Error(e.to_string()))
+                .map_err(|e| data_uploader::Error::S3Error(DisplayErrorContextS3(e).to_string()))
         })?;
 
         let s3_uri = format!("s3://{}/{}", self.bucket_name, input.file_name);
@@ -87,7 +89,7 @@ impl GuestDataUploaderClient for DataUploaderClient {
         );
 
         if existing_s3_uri.is_some() {
-            return Err(data_uploader::Error::DdbError(
+            return Err(data_uploader::Error::InputError(
                 "s3_uri is a reserved metadata key".into(),
             ));
         }
@@ -99,10 +101,69 @@ impl GuestDataUploaderClient for DataUploaderClient {
                 .set_item(Some(metadata))
                 .send()
                 .await
-                .map_err(|e| data_uploader::Error::DdbError(e.to_string()))
+                .map_err(|e| data_uploader::Error::DdbError(DisplayErrorContextDdb(e).to_string()))
         })?;
 
-        Ok(data_uploader::Confirmation { location: s3_uri })
+        Ok(data_uploader::Confirmation { s3_uri })
+    }
+
+    fn list(&self) -> Result<Vec<data_uploader::FileMetadata>, data_uploader::Error> {
+        let filter_exp = "attribute_exists(s3_uri)".to_string();
+
+        let ddb_res = self.runtime.block_on(async {
+            self.ddb_client
+                .scan()
+                .table_name(&self.table_name)
+                .filter_expression(filter_exp)
+                .into_paginator()
+                .send()
+                .try_collect()
+                .await
+                .into_iter()
+                .flatten()
+                .map(|scan_out| {
+                    // Combine all of the items into a single HashMap
+                    let items = scan_out.items.unwrap_or_default();
+                    let mut items: HashMap<&String, &AttributeValue> = items
+                        .iter()
+                        .flat_map(|item| item.iter().collect::<Vec<(&String, &AttributeValue)>>())
+                        .collect();
+
+                    #[allow(clippy::unnecessary_to_owned)]
+                    let s3_uri = items
+                        .remove(&"s3_uri".to_string())
+                        .ok_or(data_uploader::Error::DdbError(
+                            "s3_uri not found in DDB item".into(),
+                        ))?
+                        .as_s()
+                        .map_err(|_| {
+                            data_uploader::Error::DdbError("s3_uri is not a string".into())
+                        })?
+                        .clone();
+
+                    let metadata = items
+                        .into_iter()
+                        .map(|(key, val)| {
+                            let mapped_val = val.as_s().map_err(|_| {
+                                data_uploader::Error::DdbError(format!(
+                                    "metadata key {key} not a string"
+                                ))
+                            });
+
+                            if let Err(err) = mapped_val {
+                                Err(err)
+                            } else {
+                                Ok((key.clone(), mapped_val.unwrap().clone()))
+                            }
+                        })
+                        .collect::<Result<Vec<(String, String)>, data_uploader::Error>>()?;
+
+                    Ok(data_uploader::FileMetadata { s3_uri, metadata })
+                })
+                .collect::<Result<Vec<_>, _>>()
+        });
+
+        ddb_res
     }
 }
 

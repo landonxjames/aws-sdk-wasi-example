@@ -175,7 +175,7 @@ pub mod exports {
                 }
                 #[derive(Clone)]
                 pub struct Confirmation {
-                    pub location: _rt::String,
+                    pub s3_uri: _rt::String,
                 }
                 impl ::core::fmt::Debug for Confirmation {
                     fn fmt(
@@ -183,7 +183,23 @@ pub mod exports {
                         f: &mut ::core::fmt::Formatter<'_>,
                     ) -> ::core::fmt::Result {
                         f.debug_struct("Confirmation")
-                            .field("location", &self.location)
+                            .field("s3-uri", &self.s3_uri)
+                            .finish()
+                    }
+                }
+                #[derive(Clone)]
+                pub struct FileMetadata {
+                    pub s3_uri: _rt::String,
+                    pub metadata: _rt::Vec<(_rt::String, _rt::String)>,
+                }
+                impl ::core::fmt::Debug for FileMetadata {
+                    fn fmt(
+                        &self,
+                        f: &mut ::core::fmt::Formatter<'_>,
+                    ) -> ::core::fmt::Result {
+                        f.debug_struct("FileMetadata")
+                            .field("s3-uri", &self.s3_uri)
+                            .field("metadata", &self.metadata)
                             .finish()
                     }
                 }
@@ -191,6 +207,7 @@ pub mod exports {
                 pub enum Error {
                     S3Error(_rt::String),
                     DdbError(_rt::String),
+                    InputError(_rt::String),
                 }
                 impl ::core::fmt::Debug for Error {
                     fn fmt(
@@ -203,6 +220,9 @@ pub mod exports {
                             }
                             Error::DdbError(e) => {
                                 f.debug_tuple("Error::DdbError").field(e).finish()
+                            }
+                            Error::InputError(e) => {
+                                f.debug_tuple("Error::InputError").field(e).finish()
                             }
                         }
                     }
@@ -304,8 +324,8 @@ pub mod exports {
                     match result9 {
                         Ok(e) => {
                             *ptr10.add(0).cast::<u8>() = (0i32) as u8;
-                            let Confirmation { location: location11 } = e;
-                            let vec12 = (location11.into_bytes()).into_boxed_slice();
+                            let Confirmation { s3_uri: s3_uri11 } = e;
+                            let vec12 = (s3_uri11.into_bytes()).into_boxed_slice();
                             let ptr12 = vec12.as_ptr().cast::<u8>();
                             let len12 = vec12.len();
                             ::core::mem::forget(vec12);
@@ -349,6 +369,21 @@ pub mod exports {
                                         .add(2 * ::core::mem::size_of::<*const u8>())
                                         .cast::<*mut u8>() = ptr14.cast_mut();
                                 }
+                                Error::InputError(e) => {
+                                    *ptr10
+                                        .add(::core::mem::size_of::<*const u8>())
+                                        .cast::<u8>() = (2i32) as u8;
+                                    let vec15 = (e.into_bytes()).into_boxed_slice();
+                                    let ptr15 = vec15.as_ptr().cast::<u8>();
+                                    let len15 = vec15.len();
+                                    ::core::mem::forget(vec15);
+                                    *ptr10
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>() = len15;
+                                    *ptr10
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>() = ptr15.cast_mut();
+                                }
                             }
                         }
                     };
@@ -384,7 +419,7 @@ pub mod exports {
                                         .cast::<usize>();
                                     _rt::cabi_dealloc(l4, l5, 1);
                                 }
-                                _ => {
+                                1 => {
                                     let l6 = *arg0
                                         .add(2 * ::core::mem::size_of::<*const u8>())
                                         .cast::<*mut u8>();
@@ -392,6 +427,265 @@ pub mod exports {
                                         .add(3 * ::core::mem::size_of::<*const u8>())
                                         .cast::<usize>();
                                     _rt::cabi_dealloc(l6, l7, 1);
+                                }
+                                _ => {
+                                    let l8 = *arg0
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>();
+                                    let l9 = *arg0
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>();
+                                    _rt::cabi_dealloc(l8, l9, 1);
+                                }
+                            }
+                        }
+                    }
+                }
+                #[doc(hidden)]
+                #[allow(non_snake_case)]
+                pub unsafe fn _export_method_data_uploader_client_list_cabi<
+                    T: GuestDataUploaderClient,
+                >(arg0: *mut u8) -> *mut u8 {
+                    #[cfg(target_arch = "wasm32")] _rt::run_ctors_once();
+                    let result0 = T::list(
+                        unsafe { DataUploaderClientBorrow::lift(arg0 as u32 as usize) }
+                            .get(),
+                    );
+                    let ptr1 = (&raw mut _RET_AREA.0).cast::<u8>();
+                    match result0 {
+                        Ok(e) => {
+                            *ptr1.add(0).cast::<u8>() = (0i32) as u8;
+                            let vec8 = e;
+                            let len8 = vec8.len();
+                            let layout8 = _rt::alloc::Layout::from_size_align_unchecked(
+                                vec8.len() * (4 * ::core::mem::size_of::<*const u8>()),
+                                ::core::mem::size_of::<*const u8>(),
+                            );
+                            let result8 = if layout8.size() != 0 {
+                                let ptr = _rt::alloc::alloc(layout8).cast::<u8>();
+                                if ptr.is_null() {
+                                    _rt::alloc::handle_alloc_error(layout8);
+                                }
+                                ptr
+                            } else {
+                                ::core::ptr::null_mut()
+                            };
+                            for (i, e) in vec8.into_iter().enumerate() {
+                                let base = result8
+                                    .add(i * (4 * ::core::mem::size_of::<*const u8>()));
+                                {
+                                    let FileMetadata { s3_uri: s3_uri2, metadata: metadata2 } = e;
+                                    let vec3 = (s3_uri2.into_bytes()).into_boxed_slice();
+                                    let ptr3 = vec3.as_ptr().cast::<u8>();
+                                    let len3 = vec3.len();
+                                    ::core::mem::forget(vec3);
+                                    *base
+                                        .add(::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>() = len3;
+                                    *base.add(0).cast::<*mut u8>() = ptr3.cast_mut();
+                                    let vec7 = metadata2;
+                                    let len7 = vec7.len();
+                                    let layout7 = _rt::alloc::Layout::from_size_align_unchecked(
+                                        vec7.len() * (4 * ::core::mem::size_of::<*const u8>()),
+                                        ::core::mem::size_of::<*const u8>(),
+                                    );
+                                    let result7 = if layout7.size() != 0 {
+                                        let ptr = _rt::alloc::alloc(layout7).cast::<u8>();
+                                        if ptr.is_null() {
+                                            _rt::alloc::handle_alloc_error(layout7);
+                                        }
+                                        ptr
+                                    } else {
+                                        ::core::ptr::null_mut()
+                                    };
+                                    for (i, e) in vec7.into_iter().enumerate() {
+                                        let base = result7
+                                            .add(i * (4 * ::core::mem::size_of::<*const u8>()));
+                                        {
+                                            let (t4_0, t4_1) = e;
+                                            let vec5 = (t4_0.into_bytes()).into_boxed_slice();
+                                            let ptr5 = vec5.as_ptr().cast::<u8>();
+                                            let len5 = vec5.len();
+                                            ::core::mem::forget(vec5);
+                                            *base
+                                                .add(::core::mem::size_of::<*const u8>())
+                                                .cast::<usize>() = len5;
+                                            *base.add(0).cast::<*mut u8>() = ptr5.cast_mut();
+                                            let vec6 = (t4_1.into_bytes()).into_boxed_slice();
+                                            let ptr6 = vec6.as_ptr().cast::<u8>();
+                                            let len6 = vec6.len();
+                                            ::core::mem::forget(vec6);
+                                            *base
+                                                .add(3 * ::core::mem::size_of::<*const u8>())
+                                                .cast::<usize>() = len6;
+                                            *base
+                                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                                .cast::<*mut u8>() = ptr6.cast_mut();
+                                        }
+                                    }
+                                    *base
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>() = len7;
+                                    *base
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>() = result7;
+                                }
+                            }
+                            *ptr1
+                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                .cast::<usize>() = len8;
+                            *ptr1
+                                .add(::core::mem::size_of::<*const u8>())
+                                .cast::<*mut u8>() = result8;
+                        }
+                        Err(e) => {
+                            *ptr1.add(0).cast::<u8>() = (1i32) as u8;
+                            match e {
+                                Error::S3Error(e) => {
+                                    *ptr1
+                                        .add(::core::mem::size_of::<*const u8>())
+                                        .cast::<u8>() = (0i32) as u8;
+                                    let vec9 = (e.into_bytes()).into_boxed_slice();
+                                    let ptr9 = vec9.as_ptr().cast::<u8>();
+                                    let len9 = vec9.len();
+                                    ::core::mem::forget(vec9);
+                                    *ptr1
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>() = len9;
+                                    *ptr1
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>() = ptr9.cast_mut();
+                                }
+                                Error::DdbError(e) => {
+                                    *ptr1
+                                        .add(::core::mem::size_of::<*const u8>())
+                                        .cast::<u8>() = (1i32) as u8;
+                                    let vec10 = (e.into_bytes()).into_boxed_slice();
+                                    let ptr10 = vec10.as_ptr().cast::<u8>();
+                                    let len10 = vec10.len();
+                                    ::core::mem::forget(vec10);
+                                    *ptr1
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>() = len10;
+                                    *ptr1
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>() = ptr10.cast_mut();
+                                }
+                                Error::InputError(e) => {
+                                    *ptr1
+                                        .add(::core::mem::size_of::<*const u8>())
+                                        .cast::<u8>() = (2i32) as u8;
+                                    let vec11 = (e.into_bytes()).into_boxed_slice();
+                                    let ptr11 = vec11.as_ptr().cast::<u8>();
+                                    let len11 = vec11.len();
+                                    ::core::mem::forget(vec11);
+                                    *ptr1
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>() = len11;
+                                    *ptr1
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>() = ptr11.cast_mut();
+                                }
+                            }
+                        }
+                    };
+                    ptr1
+                }
+                #[doc(hidden)]
+                #[allow(non_snake_case)]
+                pub unsafe fn __post_return_method_data_uploader_client_list<
+                    T: GuestDataUploaderClient,
+                >(arg0: *mut u8) {
+                    let l0 = i32::from(*arg0.add(0).cast::<u8>());
+                    match l0 {
+                        0 => {
+                            let l1 = *arg0
+                                .add(::core::mem::size_of::<*const u8>())
+                                .cast::<*mut u8>();
+                            let l2 = *arg0
+                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                .cast::<usize>();
+                            let base12 = l1;
+                            let len12 = l2;
+                            for i in 0..len12 {
+                                let base = base12
+                                    .add(i * (4 * ::core::mem::size_of::<*const u8>()));
+                                {
+                                    let l3 = *base.add(0).cast::<*mut u8>();
+                                    let l4 = *base
+                                        .add(::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>();
+                                    _rt::cabi_dealloc(l3, l4, 1);
+                                    let l5 = *base
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>();
+                                    let l6 = *base
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>();
+                                    let base11 = l5;
+                                    let len11 = l6;
+                                    for i in 0..len11 {
+                                        let base = base11
+                                            .add(i * (4 * ::core::mem::size_of::<*const u8>()));
+                                        {
+                                            let l7 = *base.add(0).cast::<*mut u8>();
+                                            let l8 = *base
+                                                .add(::core::mem::size_of::<*const u8>())
+                                                .cast::<usize>();
+                                            _rt::cabi_dealloc(l7, l8, 1);
+                                            let l9 = *base
+                                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                                .cast::<*mut u8>();
+                                            let l10 = *base
+                                                .add(3 * ::core::mem::size_of::<*const u8>())
+                                                .cast::<usize>();
+                                            _rt::cabi_dealloc(l9, l10, 1);
+                                        }
+                                    }
+                                    _rt::cabi_dealloc(
+                                        base11,
+                                        len11 * (4 * ::core::mem::size_of::<*const u8>()),
+                                        ::core::mem::size_of::<*const u8>(),
+                                    );
+                                }
+                            }
+                            _rt::cabi_dealloc(
+                                base12,
+                                len12 * (4 * ::core::mem::size_of::<*const u8>()),
+                                ::core::mem::size_of::<*const u8>(),
+                            );
+                        }
+                        _ => {
+                            let l13 = i32::from(
+                                *arg0.add(::core::mem::size_of::<*const u8>()).cast::<u8>(),
+                            );
+                            match l13 {
+                                0 => {
+                                    let l14 = *arg0
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>();
+                                    let l15 = *arg0
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>();
+                                    _rt::cabi_dealloc(l14, l15, 1);
+                                }
+                                1 => {
+                                    let l16 = *arg0
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>();
+                                    let l17 = *arg0
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>();
+                                    _rt::cabi_dealloc(l16, l17, 1);
+                                }
+                                _ => {
+                                    let l18 = *arg0
+                                        .add(2 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<*mut u8>();
+                                    let l19 = *arg0
+                                        .add(3 * ::core::mem::size_of::<*const u8>())
+                                        .cast::<usize>();
+                                    _rt::cabi_dealloc(l18, l19, 1);
                                 }
                             }
                         }
@@ -447,6 +741,7 @@ pub mod exports {
                     }
                     fn new(config: ClientConfig) -> Self;
                     fn upload(&self, input: Data) -> Result<Confirmation, Error>;
+                    fn list(&self) -> Result<_rt::Vec<FileMetadata>, Error>;
                 }
                 #[doc(hidden)]
                 macro_rules! __export_component_aws_sdk_wasi_example_data_uploader_cabi {
@@ -473,6 +768,19 @@ pub mod exports {
                         _post_return_method_data_uploader_client_upload(arg0 : * mut u8,)
                         { unsafe { $($path_to_types)*::
                         __post_return_method_data_uploader_client_upload::<<$ty as
+                        $($path_to_types)*:: Guest >::DataUploaderClient > (arg0) } }
+                        #[unsafe (export_name =
+                        "component:aws-sdk-wasi-example/data-uploader#[method]data-uploader-client.list")]
+                        unsafe extern "C" fn export_method_data_uploader_client_list(arg0
+                        : * mut u8,) -> * mut u8 { unsafe { $($path_to_types)*::
+                        _export_method_data_uploader_client_list_cabi::<<$ty as
+                        $($path_to_types)*:: Guest >::DataUploaderClient > (arg0) } }
+                        #[unsafe (export_name =
+                        "cabi_post_component:aws-sdk-wasi-example/data-uploader#[method]data-uploader-client.list")]
+                        unsafe extern "C" fn
+                        _post_return_method_data_uploader_client_list(arg0 : * mut u8,) {
+                        unsafe { $($path_to_types)*::
+                        __post_return_method_data_uploader_client_list::<<$ty as
                         $($path_to_types)*:: Guest >::DataUploaderClient > (arg0) } }
                         const _ : () = { #[doc(hidden)] #[unsafe (export_name =
                         "component:aws-sdk-wasi-example/data-uploader#[dtor]data-uploader-client")]
@@ -597,8 +905,8 @@ mod _rt {
         let layout = alloc::Layout::from_size_align_unchecked(size, align);
         alloc::dealloc(ptr, layout);
     }
-    extern crate alloc as alloc_crate;
     pub use alloc_crate::alloc;
+    extern crate alloc as alloc_crate;
 }
 /// Generates `#[unsafe(no_mangle)]` functions to export the specified type as
 /// the root implementation of all generated traits.
@@ -637,18 +945,21 @@ pub(crate) use __export_example_impl as export;
 )]
 #[doc(hidden)]
 #[allow(clippy::octal_escapes)]
-pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 549] = *b"\
-\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\xa7\x03\x01A\x02\x01\
-A\x02\x01B\x13\x04\0\x14data-uploader-client\x03\x01\x01r\x03\x06regions\x0bbuck\
+pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 660] = *b"\
+\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\x96\x04\x01A\x02\x01\
+A\x02\x01B\x19\x04\0\x14data-uploader-client\x03\x01\x01r\x03\x06regions\x0bbuck\
 et-names\x0atable-names\x04\0\x0dclient-config\x03\0\x01\x01p}\x01o\x02ss\x01p\x04\
 \x01r\x03\x09file-names\x04data\x03\x08metadata\x05\x04\0\x04data\x03\0\x06\x01r\
-\x01\x08locations\x04\0\x0cconfirmation\x03\0\x08\x01q\x02\x08s3-error\x01s\0\x09\
-ddb-error\x01s\0\x04\0\x05error\x03\0\x0a\x01i\0\x01@\x01\x06config\x02\0\x0c\x04\
-\0![constructor]data-uploader-client\x01\x0d\x01h\0\x01j\x01\x09\x01\x0b\x01@\x02\
-\x04self\x0e\x05input\x07\0\x0f\x04\0#[method]data-uploader-client.upload\x01\x10\
-\x04\0,component:aws-sdk-wasi-example/data-uploader\x05\0\x04\0&component:aws-sd\
-k-wasi-example/example\x04\0\x0b\x0d\x01\0\x07example\x03\0\0\0G\x09producers\x01\
-\x0cprocessed-by\x02\x0dwit-component\x070.227.1\x10wit-bindgen-rust\x060.41.0";
+\x01\x06s3-uris\x04\0\x0cconfirmation\x03\0\x08\x01r\x02\x06s3-uris\x08metadata\x05\
+\x04\0\x0dfile-metadata\x03\0\x0a\x01q\x03\x08s3-error\x01s\0\x09ddb-error\x01s\0\
+\x0binput-error\x01s\0\x04\0\x05error\x03\0\x0c\x01i\0\x01@\x01\x06config\x02\0\x0e\
+\x04\0![constructor]data-uploader-client\x01\x0f\x01h\0\x01j\x01\x09\x01\x0d\x01\
+@\x02\x04self\x10\x05input\x07\0\x11\x04\0#[method]data-uploader-client.upload\x01\
+\x12\x01p\x0b\x01j\x01\x13\x01\x0d\x01@\x01\x04self\x10\0\x14\x04\0![method]data\
+-uploader-client.list\x01\x15\x04\0,component:aws-sdk-wasi-example/data-uploader\
+\x05\0\x04\0&component:aws-sdk-wasi-example/example\x04\0\x0b\x0d\x01\0\x07examp\
+le\x03\0\0\0G\x09producers\x01\x0cprocessed-by\x02\x0dwit-component\x070.227.1\x10\
+wit-bindgen-rust\x060.41.0";
 #[inline(never)]
 #[doc(hidden)]
 pub fn __link_custom_section_describing_imports() {
