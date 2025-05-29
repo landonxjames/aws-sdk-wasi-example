@@ -33,13 +33,11 @@ impl GuestDataUploaderClient for DataUploaderClient {
             .expect("Failed to generate tokio runtime");
 
         let http_client = aws_smithy_wasm::wasi::WasiHttpClientBuilder::new().build();
-        let sleep = aws_smithy_async::rt::sleep::TokioSleep::new();
 
         let aws_config = runtime.block_on(async {
             aws_config::defaults(BehaviorVersion::latest())
                 .region(Region::new(config.region))
                 .http_client(http_client)
-                .sleep_impl(sleep)
                 .load()
                 .await
         });
