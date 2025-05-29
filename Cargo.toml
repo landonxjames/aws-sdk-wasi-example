@@ -19,3 +19,10 @@ crate-type = ["cdylib"]
 package = "component:aws-sdk-wasi-example"
 
 [package.metadata.component.dependencies]
+
+[profile.release]
+codegen-units = 1
+opt-level = "s"
+debug = false
+strip = true
+lto = true
